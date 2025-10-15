@@ -19,7 +19,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } = req.query;
 
     // ตรวจสิทธิ์ก่อน
-    await verifyUser(user_id as string, token as string);
+    if (user_id && token) {
+  await verifyUser(user_id as string, token as string);
+} else {
+  console.log("⚠️ Public access (no token) — temporary mode");
+}
+
 
     // เรียก API ดวงคู่จาก backend ดวงดาว
     const result = await getAstroMatch({
@@ -35,7 +40,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // log การใช้งาน (นับ quota)
-    await logUsage(user_id as string, token as string, (question as string) || "match horoscope");
+    if (user_id && token) {
+  await verifyUser(user_id as string, token as string);
+} else {
+  console.log("⚠️ Public access (no token) — temporary mode");
+}
+
 
     res.status(200).json({
       success: true,
