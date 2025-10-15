@@ -18,15 +18,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       question
     } = req.query;
 
-    // ตรวจสิทธิ์ก่อน
+    // ✅ Public Mode: ตรวจสิทธิ์เฉพาะเมื่อมี token
     if (user_id && token) {
-  await verifyUser(user_id as string, token as string);
-} else {
-  console.log("⚠️ Public access (no token) — temporary mode");
-}
+      await verifyUser(user_id as string, token as string);
+    } else {
+      console.log("⚠️ Public access (no token) — temporary mode");
+    }
 
-
-    // เรียก API ดวงคู่จาก backend ดวงดาว
+    // 🔮 เรียก backend ดวงคู่โดยตรง
     const result = await getAstroMatch({
       date1,
       time1,
@@ -39,19 +38,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       timezone: "Asia/Bangkok"
     });
 
-    // log การใช้งาน (นับ quota)
+    // ✅ Log การใช้งานเฉพาะสมาชิก
     if (user_id && token) {
-  await verifyUser(user_id as string, token as string);
-} else {
-  console.log("⚠️ Public access (no token) — temporary mode");
-}
-
+      await logUsage(user_id as string, token as string, (question as string) || "match");
+    }
 
     res.status(200).json({
       success: true,
-      data: result
+      data: result,
+      message: "เปรียบเทียบดวงคู่สำเร็จ (Public mode)"
     });
-  } catch (e: any) {
-    res.status(400).json({ success: false, error: e.message });
+  } catch (error: any) {
+    console.error("❌ Error in match:", error);
+    res.status(400).json({ success: false, error: error.message });
   }
 }
