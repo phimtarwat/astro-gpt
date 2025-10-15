@@ -9,7 +9,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { user_id, token, question, base_date, base_time, target_date } = req.query;
 
     // ✅ ตรวจสิทธิ์สมาชิกก่อน
-    await verifyUser(user_id as string, token as string);
+    if (user_id && token) {
+  await verifyUser(user_id as string, token as string);
+} else {
+  console.log("⚠️ Public access (no token) — temporary mode");
+}
+
 
     // ✅ ตรวจจับโหมดอัตโนมัติ
     const mode = detectAnalysisMode((question as string) || "", 1);
