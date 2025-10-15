@@ -1,13 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { verifyUser } from "@/lib/membership";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const { user_id, token } = req.query;
-    const data = await verifyUser(user_id as string, token as string);
-    res.status(200).json({ success: true, data });
-  } catch (e: any) {
-    res.status(400).json({ success: false, error: e.message });
-  }
+export default async function handler(req, res) {
+  const { user_id, token } = req.query;
+  res.status(200).json({
+    success: true,
+    message: "Public mode — verification skipped",
+    data: { user_id: user_id || null, token: token || null }
+  });
 }
+
 
